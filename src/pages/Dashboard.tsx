@@ -30,13 +30,13 @@ const FONTS = [
 const LOAD_CFG = {
   calm:        { label:'Calm',        color:'#6b9b6f', bg:'#edf4ee', pct:12,
     // Replace these emoji with <img src="/icons/calm.png"> after adding your GoodNotes exports to public/icons/
-    icon: '🌱', desc: "You're in a relaxed, steady state." },
+    icon: <img src="/icons/calm.png" width={36} height={36} alt=""/>, desc: "You're in a relaxed, steady state." },
   focused:     { label:'Focused',     color:'#4a7fa8', bg:'#e4f0f8', pct:42,
-    icon: '🎯', desc: "Deep focus detected. Great work!" },
+    icon: <img src="/icons/focused.png" width={36} height={36} alt=""/>, desc: "Deep focus detected. Great work!" },
   distracted:  { label:'Distracted',  color:'#c8a46e', bg:'#f5ede0', pct:65,
-    icon: '🍃', desc: "Some scattered activity noticed." },
+    icon: <img src="/icons/distracted.png" width={36} height={36} alt=""/>, desc: "Some scattered activity noticed." },
   overwhelmed: { label:'Overwhelmed', color:'#c87a7a', bg:'#fdf0f0', pct:88,
-    icon: '🌊', desc: "High load detected. Take a breath." },
+    icon: <img src="/icons/overwhelmed.png" width={36} height={36} alt=""/>, desc: "High load detected. Take a breath." },
 }
 
 function LoadRing({ score, color }: { score: number; color: string }) {
