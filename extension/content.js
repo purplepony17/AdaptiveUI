@@ -38,14 +38,13 @@ function applyAll(p) {
   applyTheme(p)
   applyLowStim(p)
   applyClutter(p)
-  removeStyle('gb-focus-style')
+  applyChunking(p)
+  applyRuler(p)
   if (p.focus_mode) {
     applyFocusMode()
   } else {
     removeFocusMode()
   }
-  applyChunking(p)
-  applyRuler(p)
 }
 
 // ── Text ──────────────────────────────────────────────────────────────────
