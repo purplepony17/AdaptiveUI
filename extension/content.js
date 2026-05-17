@@ -369,3 +369,16 @@ function showPageToast(feature, isOn) {
   setTimeout(() => toast.style.opacity = '0', 1400)
   setTimeout(() => toast.remove(), 1800)
 }
+
+// ── Listen for profile updates from the dashboard webpage ─────────────────
+// When user changes theme/settings on the dashboard, this fires instantly
+window.addEventListener('gb_profile_update', (e) => {
+  const profile = e.detail
+  if (!profile) return
+  currentProfile = profile
+  applyAll(profile)
+  // Also save to extension storage so popup stays in sync
+  if (typeof chrome !== 'undefined' && chrome.storage) {
+    chrome.storage.sync.set({ profile })
+  }
+})
