@@ -84,7 +84,17 @@ function applyTheme(p) {
   r.style.setProperty('--gb-theme-text',   t.text)
   r.style.setProperty('--gb-theme-link',   t.link)
   r.style.setProperty('--gb-theme-accent', t.accent)
-  if (p.off_white_bg) r.style.setProperty('--gb-bg', t.bg)
+
+  // Always reset background so previous pages/settings do not leak.
+  const isGoogleDomain =
+    window.location.hostname === 'google.com' ||
+    window.location.hostname.endsWith('.google.com')
+
+  if (isGoogleDomain) {
+    r.style.setProperty('--gb-bg', 'inherit')
+  } else {
+    r.style.setProperty('--gb-bg', p.off_white_bg ? t.bg : 'inherit')
+  }
 }
 
 // ── Low stim ──────────────────────────────────────────────────────────────
