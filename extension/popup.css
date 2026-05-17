@@ -116,3 +116,92 @@ input[type=range]{width:100%;accent-color:var(--sage);cursor:pointer}
 
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:var(--border-mid);border-radius:2px}
+
+/* Load pill variants */
+.load-calm        { background:#6b9b6f18; color:#6b9b6f; border:1px solid #6b9b6f35; }
+.load-focused     { background:#4a7fa818; color:#4a7fa8; border:1px solid #4a7fa835; }
+.load-distracted  { background:#c8a46e18; color:#c8a46e; border:1px solid #c8a46e35; }
+.load-overwhelmed { background:#c87a7a18; color:#c87a7a; border:1px solid #c87a7a35; }
+
+/* Header */
+.header { background:var(--sage-pale); border-bottom:1px solid var(--border-mid); padding:12px 14px; display:flex; align-items:center; gap:9px; }
+.logo-wrap { width:28px; height:28px; border-radius:50%; overflow:hidden; flex-shrink:0; background:var(--sage-pale); border:1.5px solid var(--border-mid); display:flex; align-items:center; justify-content:center; }
+.logo-img { width:28px; height:28px; border-radius:50%; object-fit:cover; }
+.header-text { flex:1; min-width:0; }
+.hname { font-size:14px; font-weight:500; color:var(--text); }
+.hsite { font-size:11px; color:var(--text-soft); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.load-pill { padding:4px 10px; border-radius:12px; font-size:11px; font-weight:500; flex-shrink:0; }
+
+/* Feature card footer */
+.qfooter { display:flex; align-items:center; justify-content:space-between; width:100%; margin-top:4px; }
+.qshortcut { font-size:9px; color:var(--text-soft); opacity:0.7; }
+
+/* Panel hint text */
+.panel-hint { font-size:11px; color:var(--text-soft); margin-bottom:10px; line-height:1.5; }
+
+/* Summarize modes */
+.mode-row { display:flex; gap:6px; margin-bottom:10px; }
+.mode-btn { flex:1; padding:7px 4px; border:1.5px solid var(--border-mid); border-radius:8px; font-size:11px; font-weight:500; background:var(--surface); color:var(--text-mid); cursor:pointer; font-family:'Lexend',sans-serif; transition:all 0.12s; }
+.mode-btn.mode-on { border-color:var(--sage); background:var(--sage-pale); color:var(--sage); }
+.mode-btn:hover:not(.mode-on) { border-color:var(--sage); }
+
+/* Summarize button and result */
+.sum-btn { width:100%; padding:10px; background:var(--sage); color:white; border:none; border-radius:8px; font-family:'Lexend',sans-serif; font-size:13px; font-weight:500; cursor:pointer; margin-bottom:8px; }
+.sum-btn:hover { filter:brightness(0.9); }
+.sum-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.sum-result { background:var(--surface); border:1px solid var(--border-mid); border-radius:8px; padding:10px 12px; font-size:12px; color:var(--text); line-height:1.65; display:none; max-height:160px; overflow-y:auto; white-space:pre-wrap; }
+.sum-result.on { display:block; }
+
+/* Dot loader */
+.dot-loader { display:flex; gap:4px; align-items:center; justify-content:center; padding:8px; }
+.dot-loader span { width:5px; height:5px; background:var(--sage); border-radius:50%; animation:bounce 1s ease-in-out infinite; }
+.dot-loader span:nth-child(2) { animation-delay:.15s; }
+.dot-loader span:nth-child(3) { animation-delay:.3s; }
+
+/* Timer */
+.timer-wrap { text-align:center; padding:6px 0 10px; }
+.timer-phase { font-size:11px; font-weight:500; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px; color:var(--text-soft); }
+.timer-phase-work { color:var(--sage); }
+.timer-phase-break { color:#4a7fa8; }
+.timer-display { font-size:38px; font-weight:500; color:var(--text); letter-spacing:0.05em; margin-bottom:10px; }
+.timer-bar { height:5px; background:var(--border); border-radius:3px; overflow:hidden; margin-bottom:12px; }
+.timer-fill { height:100%; border-radius:3px; transition:width 1s linear; background:var(--sage); }
+.timer-fill-break { background:#4a7fa8; }
+.timer-btns { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+.timer-sessions { font-size:11px; color:var(--text-soft); margin-top:10px; }
+.tbtn { padding:8px 14px; border-radius:7px; font-family:'Lexend',sans-serif; font-size:12px; font-weight:500; cursor:pointer; border:none; }
+.tbtn-primary { background:var(--sage); color:white; }
+.tbtn-primary:hover { filter:brightness(0.9); }
+.tbtn-ghost { background:transparent; color:var(--text); border:1.5px solid var(--border-mid); }
+.tbtn-ghost:hover { background:var(--sage-pale); }
+
+/* Text sliders */
+.srow { padding:10px 0; border-bottom:1px solid var(--border); }
+.srow-last { border-bottom:none; }
+.srow-hdr { display:flex; justify-content:space-between; margin-bottom:7px; font-size:12px; color:var(--text); }
+.sval { color:var(--text-soft); }
+
+/* Theme dots */
+.theme-dots { display:flex; gap:10px; flex-wrap:wrap; padding:6px 0 12px; }
+.theme-dot-wrap { display:flex; flex-direction:column; align-items:center; gap:3px; }
+.tdot { width:32px; height:32px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:transform 0.12s, border-color 0.12s; }
+.tdot:hover { transform:scale(1.1); }
+.tdot.on { border-color:var(--text); }
+.tdot-label { font-size:10px; color:var(--text-soft); text-align:center; }
+.theme-toggle-row { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-top:1px solid var(--border); }
+.ttl { font-size:12px; color:var(--text); }
+
+/* Shortcuts */
+.shortcuts-list { display:flex; flex-direction:column; }
+.shortcut-row { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); }
+.shortcut-row:last-child { border-bottom:none; }
+.shortcut-desc { font-size:12px; color:var(--text); }
+.shortcut-key { font-size:10px; font-family:'Lexend',sans-serif; background:var(--surface); border:1px solid var(--border-mid); border-radius:5px; padding:3px 8px; color:var(--text-mid); }
+
+/* Toast notification */
+.toast { position:fixed; bottom:52px; left:50%; transform:translateX(-50%); background:var(--text); color:var(--cream); padding:6px 14px; border-radius:20px; font-size:11px; font-weight:500; white-space:nowrap; z-index:9999; pointer-events:none; animation:fadeup 0.15s ease; }
+.toast-hide { opacity:0; transition:opacity 0.4s; }
+
+/* Animations */
+@keyframes bounce { 0%,100%{transform:translateY(0);opacity:.5} 50%{transform:translateY(-4px);opacity:1} }
+@keyframes fadeup { from{opacity:0;transform:translateX(-50%) translateY(6px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
