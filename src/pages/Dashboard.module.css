@@ -31,7 +31,7 @@
 .subTitle { font-size:15px; font-weight:500; color:var(--text); margin-bottom:10px; margin-top:24px; }
 
 /* Load meter */
-.meterCard { display:flex; align-items:center; gap:24px; padding:24px; border-radius:16px; border:1.5px solid; margin-bottom:24px; }
+.meterCard { display:flex; align-items:center; gap:28px; padding:28px; border-radius:20px; border:1.5px solid; margin-bottom:28px; box-shadow: 0 4px 20px rgba(107, 155, 111, 0.08); }
 .meterState { font-size:20px; font-weight:500; font-family:var(--font-display); margin-bottom:4px; }
 .meterDesc { font-size:14px; color:var(--text-mid); line-height:1.5; margin-bottom:6px; }
 .meterTime { font-size:12px; color:var(--text-soft); }
@@ -47,9 +47,9 @@
 
 /* Stats grid */
 .statsGrid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:20px; }
-.statCard { background:var(--surface); border:1px solid var(--border-mid); border-radius:10px; padding:14px; }
-.statLabel { font-size:11px; color:var(--text-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em; }
-.statValue { font-size:20px; font-weight:500; font-family:var(--font-display); color:var(--text); }
+.statCard { background:var(--surface); border:1px solid var(--border-mid); border-radius:16px; padding:18px 16px; box-shadow: 0 2px 12px rgba(107, 155, 111, 0.06); }
+.statLabel { font-size:11px; color:var(--text-soft); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.06em; font-weight: 500; }
+.statValue { font-size:22px; font-weight:500; font-family:var(--font-display); color:var(--text); letter-spacing: -0.01em;}
 
 /* Log */
 .logBox { background:var(--surface); border:1px solid var(--border-mid); border-radius:12px; padding:16px; max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; }

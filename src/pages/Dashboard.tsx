@@ -196,9 +196,28 @@ export default function Dashboard() {
               <div className={styles.meterCard} style={{ borderColor:`${cfg.color}35`, background:cfg.bg }}>
                 <LoadRing score={loadScore} color={cfg.color}/>
                 <div>
-                  <div style={{fontSize:36, marginBottom:6}} aria-hidden>{cfg.icon}</div>
-                  <p className={styles.meterState} style={{ color:cfg.color }}>{cfg.label}</p>
-                  <p className={styles.meterDesc}>{cfg.desc}</p>
+                  <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:8 }}>
+  <div aria-hidden style={{ fontSize:56, lineHeight:1, flexShrink:0 }}>
+    {cfg.icon}
+  </div>
+  <div>
+    <p className={styles.meterState} style={{ color:cfg.color, fontSize:24 }}>{cfg.label}</p>
+    <p className={styles.meterDesc}>{cfg.desc}</p>
+    <p style={{
+  fontSize: 13,
+  marginTop: 10,
+  color: cfg.color,
+  fontStyle: 'italic',
+  lineHeight: 1.5,
+  opacity: 0.85,
+}}>
+  {loadState === 'overwhelmed' && "Looks like things are getting heavy. Want Haven to simplify this page?"}
+  {loadState === 'distracted'  && "Noticing some scattered focus. Would focus mode help?"}
+  {loadState === 'focused'     && "You're in a great rhythm. Haven is staying out of your way."}
+  {loadState === 'calm'        && "All quiet. Haven is here whenever you need it."}
+</p>
+  </div>
+</div>
                   <p className={styles.meterTime}>Session: {sessionMinutes} min</p>
                   <p style={{fontSize:11, color:'var(--text-soft)', marginTop:4}}>
                     To use custom icons: save PNG files to public/icons/ named calm.png, focused.png, distracted.png, overwhelmed.png
@@ -228,10 +247,10 @@ export default function Dashboard() {
 
               <div className={styles.statsGrid}>
                 {[
-                  { label:'Current state', value:cfg.label },
-                  { label:'Load score',    value:`${loadScore}/100` },
-                  { label:'Session time',  value:`${sessionMinutes}m` },
-                  { label:'State changes', value:String(history.length) },
+                  { label:'Your energy', value:cfg.label },
+                  { label:'Mental pace',    value:`${loadScore}/100` },
+                  { label:'Time in session',  value:`${sessionMinutes}m` },
+                  { label:'Mind shifts', value:String(history.length) },
                 ].map(s => (
                   <div key={s.label} className={styles.statCard}>
                     <p className={styles.statLabel}>{s.label}</p>

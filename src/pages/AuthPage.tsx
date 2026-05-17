@@ -60,23 +60,37 @@ export default function AuthPage() {
 
       {/* ── Animated background ── */}
       <div className={styles.animatedBg} aria-hidden>
-        
-        { <img src="/your-scene.png" className={styles.bgImage} alt="" /> }
-        <div className={styles.bgSky}/>
-        <div className={styles.bgOrb}/>
-        <div className={styles.bgLayer1}/>
-        <div className={styles.bgLayer2}/>
-        <div className={styles.bgLayer3}/>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className={styles.bgParticle} style={{
-            width: `${6 + i * 3}px`,
-            height: `${6 + i * 3}px`,
-            left: `${10 + i * 15}%`,
-            animationDuration: `${8 + i * 3}s`,
-            animationDelay: `${i * 1.5}s`,
-          }}/>
-        ))}
-      </div>
+  { <img src="/your-scene.png" className={styles.bgImage} alt="" /> }
+  <div className={styles.bgSky}/>
+  <div className={styles.bgOrb}/>
+  <div className={styles.bgLayer1}/>
+  <div className={styles.bgLayer2}/>
+  <div className={styles.bgLayer3}/>
+  {[...Array(6)].map((_, i) => (
+    <div key={i} className={styles.bgParticle} style={{
+      width: `${6 + i * 3}px`,
+      height: `${6 + i * 3}px`,
+      left: `${10 + i * 15}%`,
+      animationDuration: `${8 + i * 3}s`,
+      animationDelay: `${i * 1.5}s`,
+    }}/>
+  ))}
+  {[...Array(8)].map((_, i) => (
+    <div key={`mote-${i}`} className={styles.bgMote} style={{
+      width:  `${14 + i * 6}px`,
+      height: `${14 + i * 6}px`,
+      left:   `${8 + i * 12}%`,
+      bottom: `${10 + (i % 3) * 15}%`,
+      animationDuration: `${10 + i * 2.5}s`,
+      animationDelay:    `${i * 1.8}s`,
+    }}/>
+  ))}
+  <div className={styles.bgGlow} style={{
+    width: '500px', height: '500px',
+    top: '20%', left: '30%',
+    animationDuration: '14s',
+  }}/>
+</div>
 
       {/* ── Centered card ── */}
       <div className={styles.card}>
@@ -85,7 +99,7 @@ export default function AuthPage() {
         <div className={styles.brand}>
           <PlantLogo size={72} />
           <h1 className={styles.brandName}>Haven</h1>
-          <p className={styles.brandTagline}>A Home For Every Mind</p>
+          <p className={styles.brandTagline}>a home for every mind</p>
         </div>
 
         <div className={styles.divider}/>
@@ -109,7 +123,7 @@ export default function AuthPage() {
             <form onSubmit={handleLogin} style={{display:'flex',flexDirection:'column',gap:14}} noValidate>
               <div>
                 <h2 className={styles.heading}>Welcome back</h2>
-                <p className={styles.formSub}>Your settings are waiting for you.</p>
+                <p className={styles.formSub}>Your space is ready. Take your time.</p>
               </div>
               <div>
                 <label className="field-label">Email</label>
@@ -133,7 +147,7 @@ export default function AuthPage() {
             <form onSubmit={handleSignup} style={{display:'flex',flexDirection:'column',gap:14}} noValidate>
               <div>
                 <h2 className={styles.heading}>Make it yours</h2>
-                <p className={styles.formSub}>Your preferences travel with you everywhere.</p>
+                <p className={styles.formSub}>Let's make this feel like home.</p>
               </div>
               <div>
                 <label className="field-label">Your name</label>
