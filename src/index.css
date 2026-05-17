@@ -113,3 +113,70 @@ a { color: var(--link); }
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 3px; }
+
+/* ── Better readability for all themes ─────────────────── */
+/* Ensure text is always readable regardless of website styles */
+[data-theme="dark_moss"] body,
+[data-theme="dark_warm"] body {
+  color: var(--text) !important;
+}
+
+/* Reading ruler */
+.reading-ruler {
+  position: fixed;
+  left: 0; right: 0;
+  height: 36px;
+  background: rgba(107,155,111,0.15);
+  pointer-events: none;
+  z-index: 9999;
+  border-top: 1.5px solid rgba(107,155,111,0.35);
+  border-bottom: 1.5px solid rgba(107,155,111,0.35);
+  transition: top 0.04s linear;
+}
+
+/* Emergency overload */
+.overload-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9998;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.overload-card {
+  background: var(--surface);
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 400px;
+  text-align: center;
+  border: 1px solid var(--border-mid);
+}
+
+/* Animated plant logo entrance */
+@keyframes plantGrow {
+  from { transform: scale(0.8) translateY(4px); opacity: 0; }
+  to   { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.plant-animated {
+  animation: plantGrow 0.6s ease forwards;
+}
+
+/* Page fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: fadeIn 0.4s ease forwards;
+}
+
+/* Pulse animation for cognitive load dot */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.6; transform: scale(1.3); }
+}
+
+.load-dot-pulse {
+  animation: pulse 2s ease-in-out infinite;
+}

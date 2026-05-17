@@ -1,6 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase, Profile, DEFAULT_PROFILE } from '../lib/supabase'
 
+// Push profile to extension via custom event that content script listens for
+function syncToExtension(profile: Profile) {
+  // 1. localStorage — extension popup reads this as fallback
+  localStorage.setItem('gb_profile', JSON.stringify(profile))
+  // 2. Custom event — content script picks this up instantly if injected
+  window.dispatchEvent(new CustomEvent('gb_profile_update', { detail: profile }))
+}
+
 export function useAuth() {
   const [user, setUser]       = useState<any>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -9,7 +17,10 @@ export function useAuth() {
   const fetchProfile = useCallback(async (id: string) => {
     if (!supabase) return
     const { data } = await supabase.from('profiles').select('*').eq('id', id).single()
-    if (data) setProfile(data)
+    if (data) {
+      setProfile(data)
+      syncToExtension(data)
+    }
     setLoading(false)
   }, [])
 
@@ -47,6 +58,7 @@ export function useAuth() {
   async function signOut() {
     if (!supabase) return
     await supabase.auth.signOut()
+    localStorage.removeItem('gb_profile')
   }
 
   async function updateProfile(updates: Partial<Profile>) {
@@ -54,8 +66,11 @@ export function useAuth() {
     const merged = { ...profile, ...updates } as Profile
     await supabase.from('profiles').upsert({ id: user.id, ...updates })
     setProfile(merged)
-    // Sync to extension via localStorage
-    localStorage.setItem('gb_profile', JSON.stringify(merged))
+    syncToExtension(merged)
+    // Apply theme immediately to this page
+    if (updates.theme) {
+      document.documentElement.setAttribute('data-theme', updates.theme)
+    }
   }
 
   return { user, profile, loading, signUp, signIn, signOut, updateProfile }
