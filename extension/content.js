@@ -3,15 +3,33 @@
 
 let currentProfile = null
 let rulerEl = null
+let modes = {
+  focusMode: false,
+  simpleMode: false,
+  calmMode: false
+}
 
 ;(async () => {
   const { profile } = await chrome.storage.sync.get('profile')
   if (profile) { currentProfile = profile; applyAll(profile) }
 
+  chrome.storage.local.get(['focusMode'], (result) => {
+    modes.focusMode = result.focusMode || false
+    if (modes.focusMode) applyFocusMode()
+  })
+
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'GB_UPDATE') { currentProfile = msg.profile; applyAll(msg.profile) }
     if (msg.type === 'GB_OVERLOAD') showOverload()
     if (msg.type === 'GB_DISABLE') disableAll()
+    if (msg.type === 'TOGGLE_MODE' && msg.mode === 'focusMode') {
+      modes.focusMode = msg.enabled
+      if (msg.enabled) {
+        applyFocusMode()
+      } else {
+        removeFocusMode()
+      }
+    }
   })
 })()
 
@@ -20,7 +38,12 @@ function applyAll(p) {
   applyTheme(p)
   applyLowStim(p)
   applyClutter(p)
-  applyFocus(p)
+  removeStyle('gb-focus-style')
+  if (p.focus_mode) {
+    applyFocusMode()
+  } else {
+    removeFocusMode()
+  }
   applyChunking(p)
   applyRuler(p)
 }
@@ -117,9 +140,8 @@ function applyClutter(p) {
   `)
 }
 
-// ── Focus mode ────────────────────────────────────────────────────────────
-// Dims everything AROUND the main content, not the content itself
-function applyFocus(p) {
+// ── Gentle Browse focus mode ──────────────────────────────────────────────
+function applyGBFocus(p) {
   removeStyle('gb-focus-style')
   const existing = document.getElementById('gb-focus-dim')
   if (existing) existing.remove()
@@ -263,6 +285,7 @@ function disableAll() {
   document.documentElement.style.removeProperty('--gb-font')
   document.documentElement.style.removeProperty('--gb-size')
   document.documentElement.style.removeProperty('--gb-lh')
+  removeFocusMode()
 }
 
 // ── Emergency overload overlay ────────────────────────────────────────────
@@ -304,6 +327,222 @@ function showOverload() {
       applyAll(currentProfile)
     }
   })
+}
+
+// ── Focus Mode (extension toggle) ────────────────────────────────────────
+function applyFocusMode() {
+  const body = document.body
+  body.classList.add('accessibility-focus-mode')
+
+  const nonCriticalSelectors = [
+    'aside', '[role="complementary"]', '.sidebar', '.ad', '.advertisement',
+    '[class*="sidebar"]', '[id*="sidebar"]', 'nav:not(header nav)'
+  ]
+  nonCriticalSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (!el.classList.contains('focus-mode-dimmed')) {
+        el.classList.add('focus-mode-dimmed')
+      }
+    })
+  })
+
+  const mainSelectors = ['main', '[role="main"]', 'article', '.main-content']
+  mainSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (!el.classList.contains('focus-mode-highlight')) {
+        el.classList.add('focus-mode-highlight')
+      }
+    })
+  })
+
+  highlightFirstSentences()
+  hideMediaElements()
+  body.classList.add('reduce-motion')
+}
+
+function hideMediaElements() {
+  document.querySelectorAll('img').forEach(img => {
+    if (!img.classList.contains('focus-mode-hidden-media')) {
+      img.classList.add('focus-mode-hidden-media')
+      img.setAttribute('data-focus-original-src', img.src || '')
+      img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+      if (img.srcset) {
+        img.setAttribute('data-focus-original-srcset', img.srcset)
+        img.removeAttribute('srcset')
+      }
+      if (img.alt) {
+        img.setAttribute('data-focus-original-alt', img.alt)
+        img.alt = ''
+      }
+    }
+  })
+
+  document.querySelectorAll('video').forEach(video => {
+    if (!video.classList.contains('focus-mode-hidden-media')) {
+      video.classList.add('focus-mode-hidden-media')
+      video.pause()
+      const sources = video.querySelectorAll('source')
+      sources.forEach(source => {
+        source.setAttribute('data-focus-original-src', source.src || '')
+        source.removeAttribute('src')
+      })
+      if (video.src) {
+        video.setAttribute('data-focus-original-src', video.src)
+        video.removeAttribute('src')
+      }
+      video.load()
+    }
+  })
+
+  document.querySelectorAll('picture').forEach(picture => {
+    if (!picture.classList.contains('focus-mode-hidden-media')) {
+      picture.classList.add('focus-mode-hidden-media')
+      const imgs = picture.querySelectorAll('img')
+      imgs.forEach(img => {
+        img.setAttribute('data-focus-original-src', img.src || '')
+        img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+        if (img.srcset) {
+          img.setAttribute('data-focus-original-srcset', img.srcset)
+          img.removeAttribute('srcset')
+        }
+        if (img.alt) {
+          img.setAttribute('data-focus-original-alt', img.alt)
+          img.alt = ''
+        }
+      })
+    }
+  })
+
+  document.querySelectorAll('iframe').forEach(iframe => {
+    if (!iframe.classList.contains('focus-mode-hidden-media')) {
+      iframe.classList.add('focus-mode-hidden-media')
+      iframe.setAttribute('data-focus-original-src', iframe.src || '')
+      iframe.removeAttribute('src')
+    }
+  })
+
+  document.querySelectorAll('svg').forEach(svg => {
+    const width = svg.width.baseVal.value || 0
+    const height = svg.height.baseVal.value || 0
+    if ((width > 50 || height > 50) && !svg.classList.contains('focus-mode-hidden-media')) {
+      svg.classList.add('focus-mode-hidden-media')
+      svg.setAttribute('data-focus-original-content', svg.innerHTML)
+      svg.innerHTML = ''
+    }
+  })
+
+  document.querySelectorAll('*').forEach((el) => {
+    if (el.classList.contains('focus-mode-hidden-bg-media')) return
+    const bgImage = window.getComputedStyle(el).backgroundImage
+    const hasBackgroundMedia = bgImage && bgImage !== 'none' && bgImage.includes('url(')
+    if (!hasBackgroundMedia) return
+    const rect = el.getBoundingClientRect()
+    if (rect.width < 60 || rect.height < 60) return
+    el.classList.add('focus-mode-hidden-bg-media')
+    el.setAttribute('data-focus-original-bg-image', el.style.backgroundImage || '')
+    el.style.backgroundImage = 'none'
+  })
+}
+
+function highlightFirstSentences() {
+  const paragraphs = document.querySelectorAll('p')
+  paragraphs.forEach((paragraph) => {
+    if (paragraph.classList.contains('focus-first-sentence-processed')) return
+    if (paragraph.closest('.focus-mode-dimmed')) return
+
+    const text = paragraph.textContent?.trim()
+    if (!text || text.length < 15) return
+
+    paragraph.classList.add('focus-first-sentence-processed')
+    const walker = document.createTreeWalker(paragraph, NodeFilter.SHOW_TEXT, null)
+    const firstTextNode = walker.nextNode()
+
+    if (firstTextNode && firstTextNode.nodeValue) {
+      const nodeText = firstTextNode.nodeValue
+      const trimmedText = nodeText.trim()
+      if (trimmedText.length > 0) {
+        const leadingWhitespace = nodeText.match(/^\s*/)?.[0] || ''
+        const wordsToHighlight = trimmedText.split(/\s+/).slice(0, 5).join(' ')
+        if (wordsToHighlight.length > 3) {
+          const restOfText = nodeText.substring(leadingWhitespace.length + wordsToHighlight.length)
+          const span = document.createElement('span')
+          span.className = 'focus-first-sentence'
+          span.textContent = wordsToHighlight
+          const parent = firstTextNode.parentNode
+          if (parent) {
+            parent.insertBefore(document.createTextNode(leadingWhitespace), firstTextNode)
+            parent.insertBefore(span, firstTextNode)
+            parent.insertBefore(document.createTextNode(restOfText), firstTextNode)
+            parent.removeChild(firstTextNode)
+          }
+        }
+      }
+    }
+  })
+}
+
+function removeFocusMode() {
+  document.body.classList.remove('accessibility-focus-mode')
+  document.querySelectorAll('.focus-mode-dimmed').forEach(el => el.classList.remove('focus-mode-dimmed'))
+  document.querySelectorAll('.focus-mode-highlight').forEach(el => el.classList.remove('focus-mode-highlight'))
+
+  document.querySelectorAll('.focus-first-sentence').forEach(span => {
+    const parent = span.parentNode
+    if (parent) {
+      parent.replaceChild(document.createTextNode(span.textContent || ''), span)
+    }
+  })
+  document.querySelectorAll('.focus-first-sentence-processed').forEach(el => {
+    el.classList.remove('focus-first-sentence-processed')
+    el.normalize()
+  })
+
+  document.querySelectorAll('.focus-mode-hidden-media').forEach(el => {
+    el.classList.remove('focus-mode-hidden-media')
+    if (el.tagName === 'IMG') {
+      const src = el.getAttribute('data-focus-original-src')
+      if (src) { el.src = src; el.removeAttribute('data-focus-original-src') }
+      const srcset = el.getAttribute('data-focus-original-srcset')
+      if (srcset) { el.setAttribute('srcset', srcset); el.removeAttribute('data-focus-original-srcset') }
+      const alt = el.getAttribute('data-focus-original-alt')
+      if (alt) { el.setAttribute('alt', alt); el.removeAttribute('data-focus-original-alt') }
+    }
+    if (el.tagName === 'VIDEO') {
+      const src = el.getAttribute('data-focus-original-src')
+      if (src) { el.src = src; el.removeAttribute('data-focus-original-src') }
+      el.querySelectorAll('source').forEach(source => {
+        const s = source.getAttribute('data-focus-original-src')
+        if (s) { source.src = s; source.removeAttribute('data-focus-original-src') }
+      })
+      el.load()
+    }
+    if (el.tagName === 'PICTURE') {
+      el.querySelectorAll('img').forEach(img => {
+        const src = img.getAttribute('data-focus-original-src')
+        if (src) { img.src = src; img.removeAttribute('data-focus-original-src') }
+        const srcset = img.getAttribute('data-focus-original-srcset')
+        if (srcset) { img.setAttribute('srcset', srcset); img.removeAttribute('data-focus-original-srcset') }
+        const alt = img.getAttribute('data-focus-original-alt')
+        if (alt) { img.setAttribute('alt', alt); img.removeAttribute('data-focus-original-alt') }
+      })
+    }
+    if (el.tagName === 'IFRAME') {
+      const src = el.getAttribute('data-focus-original-src')
+      if (src) { el.src = src; el.removeAttribute('data-focus-original-src') }
+    }
+    if (el.tagName === 'SVG') {
+      const content = el.getAttribute('data-focus-original-content')
+      if (content) { el.innerHTML = content; el.removeAttribute('data-focus-original-content') }
+    }
+  })
+
+  document.querySelectorAll('.focus-mode-hidden-bg-media').forEach((el) => {
+    el.style.backgroundImage = el.getAttribute('data-focus-original-bg-image') || ''
+    el.removeAttribute('data-focus-original-bg-image')
+    el.classList.remove('focus-mode-hidden-bg-media')
+  })
+
+  document.body.classList.remove('reduce-motion')
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────
