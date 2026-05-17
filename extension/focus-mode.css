@@ -1,9 +1,33 @@
 /* Focus Mode Styles */
 
 .accessibility-focus-mode {
-    --focus-accent: #3b82f6;
-    --focus-accent-soft: rgba(59, 130, 246, 0.35);
-    --focus-accent-strong: rgba(59, 130, 246, 0.5);
+  --focus-accent: #6b9b6f;
+  --focus-accent-soft: rgba(107, 155, 111, 0.35);
+  --focus-accent-strong: rgba(107, 155, 111, 0.5);
+}
+
+/* Full page border in theme color */
+.accessibility-focus-mode::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  border: 3px solid var(--focus-accent) !important;
+  border-radius: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+/* Top progress bar */
+.accessibility-focus-mode::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, var(--focus-accent), var(--focus-accent-strong));
+  z-index: 999999;
+  pointer-events: none;
 }
 
 /* Dim non-critical elements */
@@ -18,12 +42,14 @@
   opacity: 0.6 !important;
 }
 
-/* Highlight main content area */
+/* Highlight main content area with theme-colored outline */
 .accessibility-focus-mode .focus-mode-highlight {
-    box-shadow: 0 0 0 3px var(--focus-accent-soft) !important;
-    border-radius: 8px !important;
-    position: relative !important;
-    z-index: 10 !important;
+  outline: 3px solid var(--focus-accent) !important;
+  outline-offset: 8px !important;
+  border-radius: 8px !important;
+  position: relative !important;
+  z-index: 10 !important;
+  box-shadow: 0 0 0 8px var(--focus-accent-soft), 0 0 40px var(--focus-accent-soft) !important;
 }
 
 /* Reduce motion */
@@ -35,58 +61,20 @@
   transition-duration: 0.01ms !important;
 }
 
-/* Suppress popups and modals that aren't critical */
-.accessibility-focus-mode [role="dialog"]:not(.critical),
-.accessibility-focus-mode .popup:not(.critical),
-.accessibility-focus-mode .modal:not(.critical) {
-  display: none !important;
-}
-
-/* Add focus indicator to primary actions */
-.accessibility-focus-mode button[type="submit"],
-.accessibility-focus-mode .primary-action,
-.accessibility-focus-mode [role="button"].primary {
-    outline: 2px solid var(--focus-accent) !important;
-    outline-offset: 2px !important;
-  }
-
-/* Group content with clear headers */
-.accessibility-focus-mode h1,
-.accessibility-focus-mode h2,
-.accessibility-focus-mode h3 {
-  margin-top: 2rem !important;
-  padding-top: 1rem !important;
-  border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
-}
-
-/* Completely hide media in Focus Mode (no placeholders) */
+/* Completely hide media in Focus Mode */
 .accessibility-focus-mode .focus-mode-hidden-media {
   display: none !important;
   visibility: hidden !important;
 }
 
-/* Hide elements whose CSS background images were stripped by the content script */
+/* Hide stripped background images */
 .accessibility-focus-mode .focus-mode-hidden-bg-media {
   background-image: none !important;
 }
 
-/* Optional focus timer indicator */
-.accessibility-focus-mode::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-    background: linear-gradient(to right, var(--focus-accent), var(--focus-accent-strong));
-  z-index: 9999;
-  pointer-events: none;
-}
-
-/* Highlight first few words of paragraphs to help track reading */
+/* Highlight first few words of paragraphs */
 .accessibility-focus-mode .focus-first-sentence {
-    background-color: var(--focus-accent-soft) !important;
-  /* Light blue background - more visible */
+  background-color: var(--focus-accent-soft) !important;
   padding: 3px 6px !important;
   margin-right: 2px !important;
   border-radius: 4px !important;
@@ -95,45 +83,8 @@
   box-decoration-break: clone !important;
   -webkit-box-decoration-break: clone !important;
   display: inline !important;
-  transition: background-color 0.2s ease !important;
 }
 
-/* Slightly brighten on hover to show it's interactive */
 .accessibility-focus-mode p:hover .focus-first-sentence {
-    background-color: var(--focus-accent-strong) !important;
-  }
-
-/* Make sure it's clearly visible */
-.accessibility-focus-mode .focus-first-sentence::before {
-  content: '' !important;
-  display: none !important;
+  background-color: var(--focus-accent-strong) !important;
 }
-
-/* Alternative styling options - uncomment to try different looks */
-
-/* Option 1: Stronger highlight with border */
-/*
-.accessibility-focus-mode .focus-first-sentence {
-  background-color: rgba(96, 165, 250, 0.4) !important;
-  border-left: 3px solid rgba(59, 130, 246, 0.6) !important;
-  padding-left: 8px !important;
-}
-*/
-
-/* Option 2: Yellow highlighter style */
-/*
-.accessibility-focus-mode .focus-first-sentence {
-  background-color: rgba(253, 224, 71, 0.4) !important;
-  font-weight: 600 !important;
-}
-*/
-
-/* Option 3: Underline only */
-/*
-.accessibility-focus-mode .focus-first-sentence {
-  background: none !important;
-  border-bottom: 3px solid rgba(59, 130, 246, 0.6) !important;
-  padding-bottom: 2px !important;
-  font-weight: 600 !important;
-}
-*/
