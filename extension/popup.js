@@ -552,16 +552,12 @@ async function save(){
 
 function sendToPage(){
   if(!profile.extension_enabled){
-    // Remove all GB styles
     chrome.tabs.query({active:true,currentWindow:true},([tab])=>{
       if(!tab?.id) return
-      chrome.scripting.executeScript({target:{tabId:tab.id},func:()=>{
-        document.querySelectorAll('[id^="gb-"]').forEach(el=>el.remove())
-        document.querySelectorAll('[id^="gb-"]').forEach(el=>el.remove())
-        ;['gb-low-stim-style','gb-clutter-style','gb-focus-style','gb-laser-style'].forEach(id=>{
-          const el=document.getElementById(id);if(el)el.remove()
-        })
-      }}).catch(()=>{})
+      // Inject content script first, then send disable message
+      chrome.scripting.executeScript({target:{tabId:tab.id},files:['content.js']})
+        .then(()=>chrome.tabs.sendMessage(tab.id,{type:'GB_DISABLE'}).catch(()=>{}))
+        .catch(()=>{})
     })
     return
   }

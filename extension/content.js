@@ -11,6 +11,7 @@ let rulerEl = null
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.type === 'GB_UPDATE') { currentProfile = msg.profile; applyAll(msg.profile) }
     if (msg.type === 'GB_OVERLOAD') showOverload()
+    if (msg.type === 'GB_DISABLE') disableAll()
   })
 })()
 
@@ -244,6 +245,24 @@ function applyRuler(p) {
 
 function moveRuler(e) {
   if (rulerEl) rulerEl.style.top = (e.clientY - 18) + 'px'
+}
+
+// ── Disable all Haven styles ─────────────────────────────────────────────
+function disableAll() {
+  ;['gb-low-stim-style','gb-clutter-style','gb-focus-style','gb-laser-style'].forEach(id=>{
+    const el = document.getElementById(id); if (el) el.remove()
+  })
+  ;['gb-focus','gb-ruler','gb-emergency','gb-chunk'].forEach(id=>{
+    const el = document.getElementById(id); if (el) el.remove()
+  })
+  document.querySelectorAll('.gb-chunk').forEach(el=>el.remove())
+  if (rulerEl) { rulerEl.remove(); rulerEl = null }
+  document.removeEventListener('mousemove', moveRuler)
+  document.documentElement.removeAttribute('data-gb-low-stim')
+  document.documentElement.style.removeProperty('--gb-bg')
+  document.documentElement.style.removeProperty('--gb-font')
+  document.documentElement.style.removeProperty('--gb-size')
+  document.documentElement.style.removeProperty('--gb-lh')
 }
 
 // ── Emergency overload overlay ────────────────────────────────────────────

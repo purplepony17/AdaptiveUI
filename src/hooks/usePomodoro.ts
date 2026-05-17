@@ -1,90 +1,97 @@
-import { useEffect, useRef, useState } from 'react'
-
-export type TimerPhase = 'work' | 'break' | 'idle'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { PomState, DEFAULT_POM, readPomState, writePomState } from '../lib/store'
 
 export function usePomodoro(workMins: number, breakMins: number) {
-  const [phase, setPhase]         = useState<TimerPhase>('idle')
-  const [seconds, setSeconds]     = useState(workMins * 60)
-  const [running, setRunning]     = useState(false)
-  const [sessions, setSessions]   = useState(0)
-  const intervalRef               = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  // Reset when settings change
-  useEffect(() => {
-    if (phase === 'idle') setSeconds(workMins * 60)
-  }, [workMins, phase])
+  const [state, setState] = useState<PomState>(() => readPomState())
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    if (running) {
-      intervalRef.current = setInterval(() => {
-        setSeconds(s => {
-          if (s <= 1) {
-            // Phase complete
-            if (phase === 'work') {
-              setSessions(n => n + 1)
-              setPhase('break')
-              setSeconds(breakMins * 60)
-              // Browser notification
-              if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('Gentle Browse', {
-                  body: 'Work session done! Time for a break.',
-                  icon: '/icon48.png'
-                })
-              }
-            } else {
-              setPhase('work')
-              setSeconds(workMins * 60)
-              if ('Notification' in window && Notification.permission === 'granted') {
-                new Notification('Gentle Browse', {
-                  body: 'Break over. Ready to focus again?',
-                  icon: '/icon48.png'
-                })
-              }
-            }
-            return 0
-          }
-          return s - 1
-        })
-      }, 1000)
-    } else {
+    setState(prev => {
+      if (prev.workMins === workMins && prev.breakMins === breakMins) return prev
+      const next = { ...prev, workMins, breakMins }
+      if (prev.phase === 'idle') next.seconds = workMins * 60
+      writePomState(next)
+      return next
+    })
+  }, [workMins, breakMins])
+
+  useEffect(() => {
+    function onUpdate(e: Event) {
+      setState((e as CustomEvent).detail as PomState)
+    }
+    window.addEventListener('haven_pom_update', onUpdate)
+    return () => window.removeEventListener('haven_pom_update', onUpdate)
+  }, [])
+
+  useEffect(() => {
+    if (!state.running) {
       if (intervalRef.current) clearInterval(intervalRef.current)
+      return
     }
+    intervalRef.current = setInterval(() => {
+      setState(prev => {
+        if (!prev.running) return prev
+        const next = { ...prev, seconds: prev.seconds - 1 }
+        if (next.seconds <= 0) {
+          if (next.phase === 'work') {
+            next.sessions = prev.sessions + 1
+            next.phase = 'break'
+            next.seconds = prev.breakMins * 60
+            notify('Focus session complete! 🌿', 'Time for a well-earned break.')
+          } else {
+            next.phase = 'work'
+            next.seconds = prev.workMins * 60
+            notify('Break over! 🎯', 'Ready to focus again?')
+          }
+        }
+        writePomState(next)
+        return next
+      })
+    }, 1000)
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [running, phase, workMins, breakMins])
+  }, [state.running])
 
-  function start() {
-    if (phase === 'idle') setPhase('work')
-    setRunning(true)
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
+  function notify(title: string, body: string) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body, icon: '/haven-logo.png' })
     }
   }
 
-  function pause()  { setRunning(false) }
+  const start = useCallback(() => {
+    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission()
+    setState(prev => {
+      const next = { ...prev, running: true }
+      if (prev.phase === 'idle') { next.phase = 'work'; next.seconds = prev.workMins * 60 }
+      writePomState(next)
+      return next
+    })
+  }, [])
 
-  function reset() {
-    setRunning(false)
-    setPhase('idle')
-    setSeconds(workMins * 60)
-  }
+  const pause = useCallback(() => {
+    setState(prev => { const next = { ...prev, running: false }; writePomState(next); return next })
+  }, [])
 
-  function skip() {
-    if (phase === 'work') {
-      setSessions(n => n + 1)
-      setPhase('break')
-      setSeconds(breakMins * 60)
-    } else {
-      setPhase('work')
-      setSeconds(workMins * 60)
-    }
-  }
+  const reset = useCallback(() => {
+    setState(prev => {
+      const next = { ...DEFAULT_POM, workMins: prev.workMins, breakMins: prev.breakMins, seconds: prev.workMins * 60 }
+      writePomState(next); return next
+    })
+  }, [])
 
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
+  const skip = useCallback(() => {
+    setState(prev => {
+      const next = { ...prev }
+      if (prev.phase === 'work') { next.sessions++; next.phase = 'break'; next.seconds = prev.breakMins * 60 }
+      else { next.phase = 'work'; next.seconds = prev.workMins * 60 }
+      writePomState(next); return next
+    })
+  }, [])
+
+  const mins = Math.floor(state.seconds / 60)
+  const secs = state.seconds % 60
   const display = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`
-  const progress = phase === 'work'
-    ? 1 - seconds / (workMins * 60)
-    : 1 - seconds / (breakMins * 60)
+  const total = state.phase === 'work' ? state.workMins * 60 : state.breakMins * 60
+  const progress = state.phase === 'idle' ? 0 : 1 - state.seconds / total
 
-  return { phase, display, progress, running, sessions, start, pause, reset, skip }
+  return { phase: state.phase, display, progress, running: state.running, sessions: state.sessions, start, pause, reset, skip }
 }

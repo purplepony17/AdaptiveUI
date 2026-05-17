@@ -4,10 +4,12 @@ import { useAuth } from '../hooks/useAuth'
 import { useCognitiveLoad } from '../hooks/useCognitiveLoad'
 import { usePomodoro } from '../hooks/usePomodoro'
 import { PlantLogo } from '../components/PlantLogo'
+import AIChatPanel from '../components/AIChatPanel'
 import { Profile } from '../lib/supabase'
+import { writeTheme } from '../lib/store'
 import styles from './Dashboard.module.css'
 
-type Section = 'load' | 'modes' | 'pomodoro' | 'text' | 'themes' | 'privacy'
+type Section = 'load' | 'modes' | 'pomodoro' | 'text' | 'themes' | 'privacy' | 'chat'
 
 const THEMES = [
   { id:'sage',          label:'Sage garden',   bg:'#f8f4ee', accent:'#6b9b6f', text:'#2e3a2f' },
@@ -26,10 +28,15 @@ const FONTS = [
 ]
 
 const LOAD_CFG = {
-  calm:        { label:'Calm',        color:'#6b9b6f', bg:'#edf4ee', pct:12  },
-  focused:     { label:'Focused',     color:'#4a7fa8', bg:'#e4f0f8', pct:42  },
-  distracted:  { label:'Distracted',  color:'#c8a46e', bg:'#f5ede0', pct:65  },
-  overwhelmed: { label:'Overwhelmed', color:'#c87a7a', bg:'#fdf0f0', pct:88  },
+  calm:        { label:'Calm',        color:'#6b9b6f', bg:'#edf4ee', pct:12,
+    // Replace these emoji with <img src="/icons/calm.png"> after adding your GoodNotes exports to public/icons/
+    icon: '🌱', desc: "You're in a relaxed, steady state." },
+  focused:     { label:'Focused',     color:'#4a7fa8', bg:'#e4f0f8', pct:42,
+    icon: '🎯', desc: "Deep focus detected. Great work!" },
+  distracted:  { label:'Distracted',  color:'#c8a46e', bg:'#f5ede0', pct:65,
+    icon: '🍃', desc: "Some scattered activity noticed." },
+  overwhelmed: { label:'Overwhelmed', color:'#c87a7a', bg:'#fdf0f0', pct:88,
+    icon: '🌊', desc: "High load detected. Take a breath." },
 }
 
 function LoadRing({ score, color }: { score: number; color: string }) {
@@ -163,6 +170,7 @@ export default function Dashboard() {
                 ['text',    'Text settings'],
                 ['themes',  'Themes'],
                 ['privacy', 'Privacy'],
+                ['chat',    'AI Chat'],
               ] as [Section, string][]).map(([id, label]) => (
                 <button key={id}
                   className={`${styles.navBtn} ${section===id?styles.navActive:''}`}
@@ -188,14 +196,13 @@ export default function Dashboard() {
               <div className={styles.meterCard} style={{ borderColor:`${cfg.color}35`, background:cfg.bg }}>
                 <LoadRing score={loadScore} color={cfg.color}/>
                 <div>
+                  <div style={{fontSize:36, marginBottom:6}} aria-hidden>{cfg.icon}</div>
                   <p className={styles.meterState} style={{ color:cfg.color }}>{cfg.label}</p>
-                  <p className={styles.meterDesc}>
-                    {cfg.label === 'Calm' && "You're in a relaxed, steady state."}
-                    {cfg.label === 'Focused' && "Deep focus detected. Great work!"}
-                    {cfg.label === 'Distracted' && "Some scattered activity noticed."}
-                    {cfg.label === 'Overwhelmed' && "High load detected. Take a breath."}
-                  </p>
+                  <p className={styles.meterDesc}>{cfg.desc}</p>
                   <p className={styles.meterTime}>Session: {sessionMinutes} min</p>
+                  <p style={{fontSize:11, color:'var(--text-soft)', marginTop:4}}>
+                    To use custom icons: save PNG files to public/icons/ named calm.png, focused.png, distracted.png, overwhelmed.png
+                  </p>
                 </div>
               </div>
 
@@ -403,7 +410,7 @@ export default function Dashboard() {
                 {THEMES.map(t=>(
                   <button key={t.id} aria-pressed={profile.theme===t.id}
                     className={`${styles.themeCard} ${profile.theme===t.id?styles.themeCardOn:''}`}
-                    onClick={()=>{ updateProfile({ theme:t.id as any }); document.documentElement.setAttribute('data-theme',t.id) }}>
+                    onClick={()=>{ updateProfile({ theme:t.id as any }); writeTheme(t.id) }}>
                     <div className={styles.themePreview} style={{ background:t.bg }}>
                       <div style={{ background:t.accent, width:20, height:20, borderRadius:'50%', marginBottom:8 }}/>
                       <div style={{ background:t.text, height:6, borderRadius:3, width:'80%', opacity:0.8, marginBottom:5 }}/>
@@ -415,6 +422,15 @@ export default function Dashboard() {
                   </button>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* ── AI Chat ── */}
+          {section === 'chat' && (
+            <div>
+              <h2 className={styles.title}>AI Chat</h2>
+              <p className={styles.sub}>Ask questions about what you're reading or about Haven's features. Only relevant questions are answered.</p>
+              <AIChatPanel />
             </div>
           )}
 
