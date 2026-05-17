@@ -1,83 +1,79 @@
+declare const chrome: any
+
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { PomState, DEFAULT_POM, readPomState, writePomState } from '../lib/store'
+import { PomState, DEFAULT_POM, writePomState } from '../lib/store'
+
+// Read from chrome.storage.local where background.js saves
+function readFromExtension(cb: (s: PomState) => void) {
+  if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+    chrome.storage.local.get('pomState', (r) => {
+      if (r.pomState) cb(r.pomState)
+    })
+  }
+}
 
 export function usePomodoro(workMins: number, breakMins: number) {
-  const [state, setState] = useState<PomState>(() => readPomState())
+  const [state, setState] = useState<PomState>(() => DEFAULT_POM)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  // On mount, read initial state from extension storage
   useEffect(() => {
-    setState(prev => {
-      if (prev.workMins === workMins && prev.breakMins === breakMins) return prev
-      const next = { ...prev, workMins, breakMins }
-      if (prev.phase === 'idle') next.seconds = workMins * 60
-      writePomState(next)
-      return next
-    })
-  }, [workMins, breakMins])
+    readFromExtension(s => setState(s))
+  }, [])
 
-
+  // Poll chrome.storage.local every second to stay in sync with background.js
   useEffect(() => {
-    if (!state.running) {
-      if (intervalRef.current) clearInterval(intervalRef.current)
-      return
-    }
-    intervalRef.current = setInterval(() => {
-      setState(prev => {
-        if (!prev.running) return prev
-        const next = { ...prev, seconds: prev.seconds - 1 }
-        if (next.seconds <= 0) {
-          if (next.phase === 'work') {
-            next.sessions = prev.sessions + 1
-            next.phase = 'break'
-            next.seconds = prev.breakMins * 60
-            notify('Focus session complete! 🌿', 'Time for a well-earned break.')
-          } else {
-            next.phase = 'work'
-            next.seconds = prev.workMins * 60
-            notify('Break over! 🎯', 'Ready to focus again?')
-          }
-        }
-        writePomState(next)
-        return next
+    const poll = setInterval(() => {
+      readFromExtension(s => {
+        setState(prev => {
+          // Only update if something actually changed to avoid unnecessary re-renders
+          if (
+            prev.seconds === s.seconds &&
+            prev.running === s.running &&
+            prev.phase === s.phase &&
+            prev.sessions === s.sessions
+          ) return prev
+          return s
+        })
       })
     }, 1000)
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [state.running])
+    return () => clearInterval(poll)
+  }, [])
 
-  function notify(title: string, body: string) {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body, icon: '/haven-logo.png' })
-    }
+  // Send commands to background.js service worker
+  function bgMsg(type: string, extra?: object): Promise<PomState | null> {
+    return new Promise(resolve => {
+      if (typeof chrome === 'undefined' || !chrome.runtime?.sendMessage) {
+        resolve(null)
+        return
+      }
+      chrome.runtime.sendMessage({ type, ...extra }, (r) => {
+        resolve(r?.pomState ?? null)
+      })
+    })
   }
 
-  const start = useCallback(() => {
-    if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission()
-    setState(prev => {
-      const next = { ...prev, running: true }
-      if (prev.phase === 'idle') { next.phase = 'work'; next.seconds = prev.workMins * 60 }
-      writePomState(next)
-      return next
-    })
+  const start = useCallback(async () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+    const s = await bgMsg('POM_START')
+    if (s) setState(s)
   }, [])
 
-  const pause = useCallback(() => {
-    setState(prev => { const next = { ...prev, running: false }; writePomState(next); return next })
+  const pause = useCallback(async () => {
+    const s = await bgMsg('POM_PAUSE')
+    if (s) setState(s)
   }, [])
 
-  const reset = useCallback(() => {
-    setState(prev => {
-      const next = { ...DEFAULT_POM, workMins: prev.workMins, breakMins: prev.breakMins, seconds: prev.workMins * 60 }
-      writePomState(next); return next
-    })
+  const reset = useCallback(async () => {
+    const s = await bgMsg('POM_RESET')
+    if (s) setState(s)
   }, [])
 
-  const skip = useCallback(() => {
-    setState(prev => {
-      const next = { ...prev }
-      if (prev.phase === 'work') { next.sessions++; next.phase = 'break'; next.seconds = prev.breakMins * 60 }
-      else { next.phase = 'work'; next.seconds = prev.workMins * 60 }
-      writePomState(next); return next
-    })
+  const skip = useCallback(async () => {
+    const s = await bgMsg('POM_SKIP')
+    if (s) setState(s)
   }, [])
 
   const mins = Math.floor(state.seconds / 60)
@@ -86,5 +82,15 @@ export function usePomodoro(workMins: number, breakMins: number) {
   const total = state.phase === 'work' ? state.workMins * 60 : state.breakMins * 60
   const progress = state.phase === 'idle' ? 0 : 1 - state.seconds / total
 
-  return { phase: state.phase, display, progress, running: state.running, sessions: state.sessions, start, pause, reset, skip }
+  return {
+    phase: state.phase,
+    display,
+    progress,
+    running: state.running,
+    sessions: state.sessions,
+    start,
+    pause,
+    reset,
+    skip,
+  }
 }

@@ -551,15 +551,23 @@ async function save(){
 }
 
 function sendToPage(){
-  function sendToPage(){
-  chrome.tabs.query({active:true,currentWindow:true},([tab])=>{
-    if(!tab?.id) return
-    const msg = profile.extension_enabled
-      ? {type:'GB_UPDATE', profile}
-      : {type:'GB_DISABLE'}
-    chrome.tabs.sendMessage(tab.id, msg).catch(()=>{})
+  chrome.tabs.query({active:true, currentWindow:true}, ([tab]) => {
+    if (!tab?.id) return
+    if (!profile.extension_enabled) {
+      chrome.tabs.sendMessage(tab.id, {type:'GB_DISABLE'}).catch(() => {
+        chrome.scripting.executeScript({target:{tabId:tab.id}, files:['content.js']})
+          .then(() => chrome.tabs.sendMessage(tab.id, {type:'GB_DISABLE'}).catch(()=>{}))
+          .catch(()=>{})
+      })
+      return
+    }
+    chrome.tabs.sendMessage(tab.id, {type:'GB_UPDATE', profile}).catch(() => {
+      chrome.scripting.executeScript({target:{tabId:tab.id}, files:['content.js']})
+        .then(() => chrome.scripting.insertCSS({target:{tabId:tab.id}, files:['content.css']})
+          .then(() => chrome.tabs.sendMessage(tab.id, {type:'GB_UPDATE', profile}).catch(()=>{}))
+        ).catch(e => console.log('Haven:', e))
+    })
   })
-}
 }
 
 function updateSiteHost(){

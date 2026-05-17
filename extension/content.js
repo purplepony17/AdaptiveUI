@@ -291,10 +291,26 @@ function disableAll() {
   if (rulerEl) { rulerEl.remove(); rulerEl = null }
   document.removeEventListener('mousemove', moveRuler)
   document.documentElement.removeAttribute('data-gb-low-stim')
-  document.documentElement.style.removeProperty('--gb-bg')
-  document.documentElement.style.removeProperty('--gb-font')
-  document.documentElement.style.removeProperty('--gb-size')
-  document.documentElement.style.removeProperty('--gb-lh')
+
+  // Remove ALL CSS variables Haven sets
+  const r = document.documentElement
+  r.style.removeProperty('--gb-bg')
+  r.style.removeProperty('--gb-font')
+  r.style.removeProperty('--gb-size')
+  r.style.removeProperty('--gb-lh')
+  r.style.removeProperty('--gb-width')
+  r.style.removeProperty('--gb-align')
+  r.style.removeProperty('--gb-theme-bg')
+  r.style.removeProperty('--gb-theme-text')
+  r.style.removeProperty('--gb-theme-link')
+  r.style.removeProperty('--gb-theme-accent')
+
+  // Reset background on html and body
+  r.style.removeProperty('background-color')
+  r.style.removeProperty('background')
+  document.body.style.removeProperty('background-color')
+  document.body.style.removeProperty('background')
+
   removeFocusMode()
 }
 
