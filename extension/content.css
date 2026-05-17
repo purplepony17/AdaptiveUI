@@ -1,0 +1,38 @@
+:root {
+  --gb-size: 16px;
+  --gb-lh: 1.6;
+  --gb-width: 70ch;
+  --gb-align: left;
+  --gb-font: inherit;
+  --gb-bg: inherit;
+}
+
+body {
+  font-size: var(--gb-size) !important;
+  line-height: var(--gb-lh) !important;
+  background-color: var(--gb-bg) !important;
+  font-family: var(--gb-font) !important;
+}
+
+p, li, td, blockquote {
+  text-align: var(--gb-align) !important;
+  max-width: var(--gb-width) !important;
+}
+
+[data-gb-low-stim="true"] *, [data-gb-low-stim="true"] *::before, [data-gb-low-stim="true"] *::after {
+  animation-duration: 0.001ms !important;
+  transition-duration: 0.001ms !important;
+}
+
+[data-gb-low-stim="true"] img, [data-gb-low-stim="true"] video {
+  filter: saturate(0.35) !important;
+}
+
+#gb-focus {
+  position: fixed; inset: 0; pointer-events: none; z-index: 9998;
+  background: radial-gradient(ellipse 55% 45% at 50% 45%, transparent 38%, rgba(0,0,0,0.4) 100%);
+}
+
+[data-gb-laser="true"] * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='10' cy='10' r='4' fill='%236b9b6f' opacity='0.9'/%3E%3Ccircle cx='10' cy='10' r='8' fill='none' stroke='%236b9b6f' stroke-width='1.5' opacity='0.45'/%3E%3C/svg%3E") 10 10, crosshair !important;
+}

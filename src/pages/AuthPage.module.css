@@ -1,0 +1,22 @@
+.page { display:flex; min-height:100vh; background:var(--bg); }
+.aside { width:280px; flex-shrink:0; background:var(--accent-pale); border-right:1px solid var(--border-mid); display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:40px 28px; }
+.brand { text-align:center; }
+.brandName { font-family:var(--font-display); font-size:24px; color:var(--accent); letter-spacing:-0.02em; margin-top:14px; }
+.brandTagline { font-size:13px; color:var(--text-soft); margin-top:4px; font-style:italic; }
+.scenePlaceholder { width:100%; aspect-ratio:1; border:2px dashed var(--border-mid); border-radius:var(--radius); display:flex; align-items:center; justify-content:center; padding:1rem; }
+.sceneImg { width:100%; height:auto; border-radius:var(--radius); }
+.quote { font-family:var(--font-display); font-size:13px; font-style:italic; color:var(--text-soft); text-align:center; line-height:1.7; border:none; padding:0; }
+.main { flex:1; padding:48px; display:flex; flex-direction:column; justify-content:center; max-width:520px; }
+.tabs { display:flex; border-bottom:1.5px solid var(--border-mid); margin-bottom:28px; }
+.tab { font-family:var(--font-body); font-size:14px; font-weight:500; color:var(--text-soft); padding:8px 20px 13px; cursor:pointer; border:none; background:none; border-bottom:2px solid transparent; margin-bottom:-1.5px; transition:color 0.15s; }
+.tabOn { color:var(--accent); border-bottom-color:var(--accent); }
+.tab:hover:not(.tabOn) { color:var(--text-mid); }
+.heading { font-family:var(--font-display); font-size:26px; letter-spacing:-0.02em; margin-bottom:6px; }
+.formSub { font-size:14px; color:var(--text-soft); }
+@media(max-width:720px){
+  .page{flex-direction:column}
+  .aside{width:100%;flex-direction:row;padding:20px;border-right:none;border-bottom:1px solid var(--border-mid)}
+  .scenePlaceholder{display:none}
+  .quote{display:none}
+  .main{padding:24px 20px;max-width:100%}
+}
