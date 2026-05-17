@@ -129,7 +129,7 @@ export default function Dashboard() {
                    style={{borderRadius:'50%', border:'2px solid var(--border-mid)'}} />
             */}
             <div className={styles.brand}>
-              <PlantLogo size={38} />
+              <img src="/src/assets/haven-logo.png" alt="Haven" width={38} height={38} style={{borderRadius:'50%', border:'2px solid var(--border-mid)'}} />
               <div>
                 <p className={styles.brandName}>Haven</p>
                 <p className={styles.brandSub}>{profile.display_name || 'Friend'}</p>

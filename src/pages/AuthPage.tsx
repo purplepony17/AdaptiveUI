@@ -59,7 +59,7 @@ export default function AuthPage() {
     <div className={styles.page}>
       <aside className={styles.aside}>
         <div className={styles.brand}>
-          <PlantLogo size={56} />
+          <img src="/src/assets/haven-logo.png" alt="Haven" width={56} height={56} style={{borderRadius:'50%', border:'2px solid var(--border-mid)'}} />
           <h1 className={styles.brandName}>Gentle Browse</h1>
           <p className={styles.brandTagline}>a kinder corner of the internet</p>
         </div>
