@@ -15,13 +15,6 @@ export function usePomodoro(workMins: number, breakMins: number) {
     })
   }, [workMins, breakMins])
 
-  useEffect(() => {
-    function onUpdate(e: Event) {
-      setState((e as CustomEvent).detail as PomState)
-    }
-    window.addEventListener('haven_pom_update', onUpdate)
-    return () => window.removeEventListener('haven_pom_update', onUpdate)
-  }, [])
 
   useEffect(() => {
     if (!state.running) {

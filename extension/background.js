@@ -26,7 +26,7 @@ function tick() {
   if (!pomState.running) return
   pomState.seconds--
   // Broadcast to all Haven dashboard tabs so they stay in sync
-  chrome.tabs.query({url: ['*://adaptive-*.vercel.app/*', '*://localhost:5173/*']}, tabs => {
+  chrome.tabs.query({url: ['*://*.vercel.app/*', '*://localhost:5173/*', '*://localhost:5174/*']}, tabs => {
     tabs.forEach(tab => {
       if (tab.id) {
         chrome.tabs.sendMessage(tab.id, {type: 'HAVEN_POM_TICK', pomState}).catch(()=>{})

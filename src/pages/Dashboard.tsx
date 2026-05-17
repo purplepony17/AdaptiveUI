@@ -53,8 +53,13 @@ const LOAD_CFG = {
 }
 
 const DEMO_COLORS = { calm:'#6b9b6f', focused:'#4a7fa8', distracted:'#c8a46e', overwhelmed:'#c87a7a' }
-const DEMO_ICONS  = { calm:'🌱', focused:'🎯', distracted:'🍃', overwhelmed:'🌊' }
-
+const DEMO_ICONS  = {
+    calm:        <img src="/icons/calm.png"        width={22} height={22} alt="calm"        style={{objectFit:'contain'}} />,
+    focused:     <img src="/icons/focused.png"     width={22} height={22} alt="focused"     style={{objectFit:'contain'}} />,
+    distracted:  <img src="/icons/distracted.png"   width={22} height={22} alt="distracted"   style={{objectFit:'contain'}} />,
+    overwhelmed: <img src="/icons/overwhelmed.png"   width={22} height={22} alt="overwhelmed"   style={{objectFit:'contain'}} />,
+}
+  
 function LoadRing({ score, color }: { score: number; color: string }) {
   const r = 52, circ = 2 * Math.PI * r
   return (
@@ -245,7 +250,7 @@ export default function Dashboard() {
                         transition: 'all 0.15s',
                         width: '100%',
                       }}>
-                      <span style={{ fontSize:16 }}>{DEMO_ICONS[state]}</span>
+                      {DEMO_ICONS[state]}
                       {state.charAt(0).toUpperCase() + state.slice(1)}
                       {demoState===state && <span style={{ marginLeft:'auto', fontSize:10 }}>● Active</span>}
                     </button>

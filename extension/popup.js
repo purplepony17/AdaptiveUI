@@ -542,7 +542,7 @@ function timerPct(){
 }
 
 function openDash(){
-  const url='https://adaptive-841pp8vsf-purplepony17s-projects.vercel.app'
+  const url='https://adaptive-op946eydb-purplepony17s-projects.vercel.app/dashboard'
   chrome.tabs.create({url})
 }
 
