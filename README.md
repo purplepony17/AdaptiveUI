@@ -1,4 +1,4 @@
-# Gentle Browse
+# Haven
 
 Adaptive cognitive accessibility for neurodivergent users.
 
