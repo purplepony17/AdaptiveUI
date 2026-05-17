@@ -216,7 +216,7 @@ window.pomSkip  = function() {
 }
 
 window.openDash = function() {
-  const url = 'https://your-app.vercel.app'
+  const url = 'https://adaptive-5olnpl9xm-purplepony17s-projects.vercel.app'
   if (typeof chrome !== 'undefined' && chrome.tabs) chrome.tabs.create({url})
   else window.open(url,'_blank')
 }
