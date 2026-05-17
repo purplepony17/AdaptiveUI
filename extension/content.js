@@ -333,6 +333,11 @@ function showOverload() {
 function applyFocusMode() {
   const body = document.body
   body.classList.add('accessibility-focus-mode')
+  const theme = currentProfile?.theme || 'sage'
+  const accent = getAccentHex(theme)
+  body.style.setProperty('--focus-accent', accent)
+  body.style.setProperty('--focus-accent-soft', `${accent}59`)
+  body.style.setProperty('--focus-accent-strong', `${accent}80`)
 
   const nonCriticalSelectors = [
     'aside', '[role="complementary"]', '.sidebar', '.ad', '.advertisement',
@@ -483,6 +488,9 @@ function highlightFirstSentences() {
 
 function removeFocusMode() {
   document.body.classList.remove('accessibility-focus-mode')
+  document.body.style.removeProperty('--focus-accent')
+  document.body.style.removeProperty('--focus-accent-soft')
+  document.body.style.removeProperty('--focus-accent-strong')
   document.querySelectorAll('.focus-mode-dimmed').forEach(el => el.classList.remove('focus-mode-dimmed'))
   document.querySelectorAll('.focus-mode-highlight').forEach(el => el.classList.remove('focus-mode-highlight'))
 
