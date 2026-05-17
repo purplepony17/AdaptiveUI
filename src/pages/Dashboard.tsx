@@ -4,12 +4,10 @@ import { useAuth } from '../hooks/useAuth'
 import { useCognitiveLoad } from '../hooks/useCognitiveLoad'
 import { usePomodoro } from '../hooks/usePomodoro'
 import { PlantLogo } from '../components/PlantLogo'
-import AIChatPanel from '../components/AIChatPanel'
 import { Profile } from '../lib/supabase'
-import { writeTheme } from '../lib/store'
 import styles from './Dashboard.module.css'
 
-type Section = 'load' | 'modes' | 'pomodoro' | 'text' | 'themes' | 'privacy' | 'chat'
+type Section = 'load' | 'modes' | 'pomodoro' | 'text' | 'themes' | 'privacy'
 
 const THEMES = [
   { id:'sage',          label:'Sage garden',   bg:'#f8f4ee', accent:'#6b9b6f', text:'#2e3a2f' },
@@ -23,21 +21,39 @@ const THEMES = [
 const FONTS = [
   { id:'lexend',       label:'Lexend',        sub:'Clear and easy to read' },
   { id:'opendyslexic', label:'OpenDyslexic',  sub:'Designed for dyslexia' },
-  { id:'arial',        label:'Arial',          sub:'Simple and familiar' },
-  { id:'system',       label:'System default', sub:'Your device font' },
+  { id:'arial',        label:'Arial',         sub:'Simple and familiar' },
+  { id:'system',       label:'System default',sub:'Your device font' },
 ]
 
 const LOAD_CFG = {
-  calm:        { label:'Calm',        color:'#6b9b6f', bg:'#edf4ee', pct:12,
-    // Replace these emoji with <img src="/icons/calm.png"> after adding your GoodNotes exports to public/icons/
-    icon: <img src="/icons/calm.png" width={36} height={36} alt=""/>, desc: "You're in a relaxed, steady state." },
-  focused:     { label:'Focused',     color:'#4a7fa8', bg:'#e4f0f8', pct:42,
-    icon: <img src="/icons/focused.png" width={36} height={36} alt=""/>, desc: "Deep focus detected. Great work!" },
-  distracted:  { label:'Distracted',  color:'#c8a46e', bg:'#f5ede0', pct:65,
-    icon: <img src="/icons/distracted.png" width={36} height={36} alt=""/>, desc: "Some scattered activity noticed." },
-  overwhelmed: { label:'Overwhelmed', color:'#c87a7a', bg:'#fdf0f0', pct:88,
-    icon: <img src="/icons/overwhelmed.png" width={36} height={36} alt=""/>, desc: "High load detected. Take a breath." },
+  calm: {
+    label:'Calm', color:'#6b9b6f', bg:'#edf4ee', pct:12,
+    icon: <img src="/icons/calm.png" width={110} height={110} alt="" style={{objectFit:'contain', display:'block'}}/>,
+    desc: "You're in a relaxed, steady state.",
+    message: "All quiet. Haven is here whenever you need it.",
+  },
+  focused: {
+    label:'Focused', color:'#4a7fa8', bg:'#e4f0f8', pct:42,
+    icon: <img src="/icons/focused.png" width={110} height={110} alt="" style={{objectFit:'contain', display:'block'}}/>,
+    desc: "Deep focus detected. Great work!",
+    message: "You're in a great rhythm. Haven is staying out of your way.",
+  },
+  distracted: {
+    label:'Distracted', color:'#c8a46e', bg:'#f5ede0', pct:65,
+    icon: <img src="/icons/distracted.png" width={110} height={110} alt="" style={{objectFit:'contain', display:'block'}}/>,
+    desc: "Some scattered activity noticed.",
+    message: "Noticing some scattered focus. Would focus mode help?",
+  },
+  overwhelmed: {
+    label:'Overwhelmed', color:'#c87a7a', bg:'#fdf0f0', pct:88,
+    icon: <img src="/icons/overwhelmed.png" width={110} height={110} alt="" style={{objectFit:'contain', display:'block'}}/>,
+    desc: "High load detected. Take a breath.",
+    message: "Looks like things are getting heavy. Want Haven to simplify this page?",
+  },
 }
+
+const DEMO_COLORS = { calm:'#6b9b6f', focused:'#4a7fa8', distracted:'#c8a46e', overwhelmed:'#c87a7a' }
+const DEMO_ICONS  = { calm:'🌱', focused:'🎯', distracted:'🍃', overwhelmed:'🌊' }
 
 function LoadRing({ score, color }: { score: number; color: string }) {
   const r = 52, circ = 2 * Math.PI * r
@@ -61,13 +77,21 @@ function LoadRing({ score, color }: { score: number; color: string }) {
 export default function Dashboard() {
   const { profile, updateProfile, signOut } = useAuth()
   const navigate = useNavigate()
-  const [section, setSection] = useState<Section>('load')
+  const [section, setSection]     = useState<Section>('load')
+  const [demoMode, setDemoMode]   = useState(false)
+  const [demoState, setDemoState] = useState<'calm'|'focused'|'distracted'|'overwhelmed'>('calm')
   const [showOverload, setShowOverload] = useState(false)
-  const [extensionOn, setExtensionOn] = useState(true)
-  const [rulerY, setRulerY] = useState(200)
+  const [extensionOn, setExtensionOn]   = useState(true)
+  const [rulerY, setRulerY]             = useState(200)
 
-  const { loadState, loadScore, history, adaptLog, sessionMinutes } =
+  const { loadState: realLoadState, loadScore: realLoadScore, history, adaptLog, sessionMinutes } =
     useCognitiveLoad(profile?.sensitivity ?? 50)
+
+  const loadState = demoMode ? demoState : realLoadState
+  const loadScore = demoMode
+    ? { calm:8, focused:45, distracted:65, overwhelmed:88 }[demoState]
+    : realLoadScore
+
   const pomodoro = usePomodoro(profile?.pomodoro_work ?? 25, profile?.pomodoro_break ?? 5)
 
   useEffect(() => {
@@ -126,15 +150,10 @@ export default function Dashboard() {
       )}
 
       <div className={styles.page}>
+
+        {/* ── Sidebar ── */}
         <aside className={styles.sidebar}>
           <div>
-            {/*
-              TO USE YOUR OWN LOGO:
-              1. Save your image to src/assets/haven-logo.png
-              2. Replace the PlantLogo below with:
-                 <img src="/src/assets/haven-logo.png" alt="Haven" width={38} height={38}
-                   style={{borderRadius:'50%', border:'2px solid var(--border-mid)'}} />
-            */}
             <div className={styles.brand}>
               <PlantLogo size={38} />
               <div>
@@ -156,8 +175,7 @@ export default function Dashboard() {
                 <p className={styles.extToggleSub}>{extensionOn ? 'Applying to all pages' : 'Paused'}</p>
               </div>
               <label className="switch" aria-label="Toggle extension on or off">
-                <input type="checkbox" checked={extensionOn}
-                  onChange={() => setExtensionOn(v => !v)} />
+                <input type="checkbox" checked={extensionOn} onChange={() => setExtensionOn(v => !v)} />
                 <span className="switch-track"/>
               </label>
             </div>
@@ -170,21 +188,79 @@ export default function Dashboard() {
                 ['text',    'Text settings'],
                 ['themes',  'Themes'],
                 ['privacy', 'Privacy'],
-                ['chat',    'AI Chat'],
               ] as [Section, string][]).map(([id, label]) => (
                 <button key={id}
-                  className={`${styles.navBtn} ${section===id?styles.navActive:''}`}
+                  className={`${styles.navBtn} ${section===id ? styles.navActive : ''}`}
                   onClick={() => setSection(id)}>
                   {label}
                 </button>
               ))}
             </nav>
           </div>
-          <button className={styles.signOut} onClick={async () => { await signOut(); navigate('/') }}>
-            Sign out
-          </button>
+
+          {/* Bottom of sidebar: demo mode + sign out */}
+          <div>
+            {/* Demo mode panel */}
+            <div style={{
+              background: demoMode ? 'rgba(200,164,110,0.12)' : 'var(--border)',
+              border: `1px solid ${demoMode ? '#c8a46e' : 'var(--border-mid)'}`,
+              borderRadius: 12,
+              padding: '12px 14px',
+              marginBottom: 10,
+            }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: demoMode ? 10 : 0 }}>
+                <div>
+                  <p style={{ fontSize:12, fontWeight:600, color: demoMode ? '#c8a46e' : 'var(--text-mid)' }}>
+                    Demo mode
+                  </p>
+                  <p style={{ fontSize:10, color:'var(--text-soft)', marginTop:2 }}>
+                    {demoMode ? 'Simulating states' : 'For presentations'}
+                  </p>
+                </div>
+                <label className="switch" aria-label="Toggle demo mode">
+                  <input type="checkbox" checked={demoMode} onChange={() => setDemoMode(v => !v)}/>
+                  <span className="switch-track"/>
+                </label>
+              </div>
+
+              {demoMode && (
+                <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
+                  {(['calm','focused','distracted','overwhelmed'] as const).map(state => (
+                    <button key={state}
+                      onClick={() => setDemoState(state)}
+                      style={{
+                        padding: '7px 10px',
+                        borderRadius: 8,
+                        border: `1.5px solid ${demoState===state ? DEMO_COLORS[state] : 'transparent'}`,
+                        background: demoState===state ? `${DEMO_COLORS[state]}18` : 'transparent',
+                        color: demoState===state ? DEMO_COLORS[state] : 'var(--text-soft)',
+                        fontSize: 12,
+                        fontWeight: demoState===state ? 600 : 400,
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        fontFamily: 'var(--font-body)',
+                        transition: 'all 0.15s',
+                        width: '100%',
+                      }}>
+                      <span style={{ fontSize:16 }}>{DEMO_ICONS[state]}</span>
+                      {state.charAt(0).toUpperCase() + state.slice(1)}
+                      {demoState===state && <span style={{ marginLeft:'auto', fontSize:10 }}>● Active</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button className={styles.signOut} onClick={async () => { await signOut(); navigate('/') }}>
+              Sign out
+            </button>
+          </div>
         </aside>
 
+        {/* ── Main ── */}
         <main className={styles.main}>
 
           {/* ── Cognitive load ── */}
@@ -194,34 +270,32 @@ export default function Dashboard() {
               <p className={styles.sub}>Tracks your behavior to understand how you're feeling. All data stays on your device.</p>
 
               <div className={styles.meterCard} style={{ borderColor:`${cfg.color}35`, background:cfg.bg }}>
-                <LoadRing score={loadScore} color={cfg.color}/>
-                <div>
-                  <div style={{ display:'flex', alignItems:'center', gap:16, marginBottom:8 }}>
-  <div aria-hidden style={{ fontSize:56, lineHeight:1, flexShrink:0 }}>
-    {cfg.icon}
-  </div>
-  <div>
-    <p className={styles.meterState} style={{ color:cfg.color, fontSize:24 }}>{cfg.label}</p>
-    <p className={styles.meterDesc}>{cfg.desc}</p>
-    <p style={{
-  fontSize: 13,
-  marginTop: 10,
-  color: cfg.color,
-  fontStyle: 'italic',
-  lineHeight: 1.5,
-  opacity: 0.85,
-}}>
-  {loadState === 'overwhelmed' && "Looks like things are getting heavy. Want Haven to simplify this page?"}
-  {loadState === 'distracted'  && "Noticing some scattered focus. Would focus mode help?"}
-  {loadState === 'focused'     && "You're in a great rhythm. Haven is staying out of your way."}
-  {loadState === 'calm'        && "All quiet. Haven is here whenever you need it."}
-</p>
-  </div>
-</div>
-                  <p className={styles.meterTime}>Session: {sessionMinutes} min</p>
-                  <p style={{fontSize:11, color:'var(--text-soft)', marginTop:4}}>
-                    To use custom icons: save PNG files to public/icons/ named calm.png, focused.png, distracted.png, overwhelmed.png
+                {/* Ring */}
+                <div style={{ flexShrink:0 }}>
+                  <LoadRing score={loadScore} color={cfg.color}/>
+                </div>
+
+                {/* Text */}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <p className={styles.meterState} style={{ color:cfg.color }}>{cfg.label}</p>
+                  <p className={styles.meterDesc}>{cfg.desc}</p>
+                  <p style={{ fontSize:13, marginTop:8, color:cfg.color, fontStyle:'italic', lineHeight:1.5, opacity:0.85 }}>
+                    {cfg.message}
                   </p>
+                  <p className={styles.meterTime}>Session: {sessionMinutes} min</p>
+                </div>
+
+                {/* Big icon on the right */}
+                <div aria-hidden style={{
+                  flexShrink: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: 0.9,
+                  transition: 'all 0.6s ease',
+                  filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))',
+                }}>
+                  {cfg.icon}
                 </div>
               </div>
 
@@ -230,8 +304,7 @@ export default function Dashboard() {
                 {histBars.map((b, i) => (
                   <div key={i} className={styles.barWrap}>
                     <div className={styles.barInner}>
-                      <div className={styles.barFill}
-                        style={{ height:`${b.pct}%`, background:b.color }}/>
+                      <div className={styles.barFill} style={{ height:`${b.pct}%`, background:b.color }}/>
                     </div>
                   </div>
                 ))}
@@ -247,10 +320,10 @@ export default function Dashboard() {
 
               <div className={styles.statsGrid}>
                 {[
-                  { label:'Your energy', value:cfg.label },
-                  { label:'Mental pace',    value:`${loadScore}/100` },
-                  { label:'Time in session',  value:`${sessionMinutes}m` },
-                  { label:'Mind shifts', value:String(history.length) },
+                  { label:'Your energy',    value: cfg.label },
+                  { label:'Mental pace',    value: `${loadScore}/100` },
+                  { label:'Time in session',value: `${sessionMinutes}m` },
+                  { label:'Mind shifts',    value: String(history.length) },
                 ].map(s => (
                   <div key={s.label} className={styles.statCard}>
                     <p className={styles.statLabel}>{s.label}</p>
@@ -262,7 +335,9 @@ export default function Dashboard() {
               <h3 className={styles.subTitle}>Real-time feed</h3>
               <div className={styles.logBox}>
                 {adaptLog.length === 0
-                  ? <p style={{ color:'var(--text-soft)', fontSize:13, fontStyle:'italic' }}>Monitoring your activity...</p>
+                  ? <p style={{ color:'var(--text-soft)', fontSize:13, fontStyle:'italic', textAlign:'center' }}>
+                      Quietly watching over you...
+                    </p>
                   : adaptLog.map((e, i) => (
                     <div key={i} className={styles.logEntry}>
                       <span className={styles.logDot}/>
@@ -283,15 +358,15 @@ export default function Dashboard() {
               <div className={styles.featureGrid}>
                 {[
                   { key:'focus_mode',     label:'Focus mode',      desc:'Dims the page around main content. Bold text gets highlighted, headings get underlined.',  shortcut:'Alt+F', badge:'ADHD' },
-                  { key:'low_stim',       label:'Low-stimulation', desc:'Blacks out images and stops all animations to reduce sensory input.',                        shortcut:'Alt+L', badge:'Autism' },
-                  { key:'reduce_clutter', label:'Clear clutter',   desc:'Hides ads, sidebars, pop-ups, cookie banners and promotional content.',                      shortcut:'Alt+C', badge:'All' },
-                  { key:'chunk_mode',     label:'Chunk content',   desc:'Numbers every heading so long articles feel manageable.',                                     shortcut:'Alt+K', badge:'ADHD' },
-                  { key:'dyslexia_ruler', label:'Reading ruler',   desc:'A semi-transparent bar follows your mouse to help you track which line you\'re reading.',    shortcut:'Alt+R', badge:'Dyslexia' },
-                  
+                  { key:'low_stim',       label:'Low-stimulation', desc:'Blacks out images and stops all animations to reduce sensory input.',                       shortcut:'Alt+L', badge:'Autism' },
+                  { key:'reduce_clutter', label:'Clear clutter',   desc:'Hides ads, sidebars, pop-ups, cookie banners and promotional content.',                     shortcut:'Alt+C', badge:'All' },
+                  { key:'chunk_mode',     label:'Chunk content',   desc:'Numbers every heading so long articles feel manageable.',                                    shortcut:'Alt+K', badge:'ADHD' },
+                  { key:'dyslexia_ruler', label:'Reading ruler',   desc:"A semi-transparent bar follows your mouse to help you track which line you're reading.",    shortcut:'Alt+R', badge:'Dyslexia' },
+                  { key:'auto_adapt',     label:'Auto-adapt',      desc:'Automatically enables modes when your cognitive load score is high.',                        shortcut:'—',     badge:'AI' },
                 ].map(m => {
                   const on = profile[m.key as keyof Profile] as boolean
                   return (
-                    <div key={m.key} className={`${styles.featureCard} ${on?styles.featureCardOn:''}`}>
+                    <div key={m.key} className={`${styles.featureCard} ${on ? styles.featureCardOn : ''}`}>
                       <div className={styles.featureTop}>
                         <div>
                           <span className={styles.featureBadge}>{m.badge}</span>
@@ -406,7 +481,7 @@ export default function Dashboard() {
               <div className={styles.fontGrid}>
                 {FONTS.map(f=>(
                   <button key={f.id} aria-pressed={profile.font_family===f.id}
-                    className={`${styles.fontCard} ${profile.font_family===f.id?styles.fontCardOn:''}`}
+                    className={`${styles.fontCard} ${profile.font_family===f.id ? styles.fontCardOn : ''}`}
                     onClick={()=>updateProfile({ font_family:f.id as any })}>
                     <span className={styles.fontName}>{f.label}</span>
                     <span className={styles.fontSub}>{f.sub}</span>
@@ -425,11 +500,11 @@ export default function Dashboard() {
             <div>
               <h2 className={styles.title}>Color themes</h2>
               <p className={styles.sub}>Each theme ensures readable contrast. High contrast is best for low vision users.</p>
-              <div className={styles.themeGridH}>
+              <div className={styles.themeGrid}>
                 {THEMES.map(t=>(
                   <button key={t.id} aria-pressed={profile.theme===t.id}
-                    className={`${styles.themeCard} ${profile.theme===t.id?styles.themeCardOn:''}`}
-                    onClick={()=>{ updateProfile({ theme:t.id as any }); writeTheme(t.id) }}>
+                    className={`${styles.themeCard} ${profile.theme===t.id ? styles.themeCardOn : ''}`}
+                    onClick={()=>{ updateProfile({ theme:t.id as any }); document.documentElement.setAttribute('data-theme',t.id) }}>
                     <div className={styles.themePreview} style={{ background:t.bg }}>
                       <div style={{ background:t.accent, width:20, height:20, borderRadius:'50%', marginBottom:8 }}/>
                       <div style={{ background:t.text, height:6, borderRadius:3, width:'80%', opacity:0.8, marginBottom:5 }}/>
@@ -441,15 +516,6 @@ export default function Dashboard() {
                   </button>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* ── AI Chat ── */}
-          {section === 'chat' && (
-            <div>
-              <h2 className={styles.title}>AI Chat</h2>
-              <p className={styles.sub}>Ask questions about what you're reading or about Haven's features. Only relevant questions are answered.</p>
-              <AIChatPanel />
             </div>
           )}
 
@@ -493,7 +559,10 @@ function ToggleRow({ label, desc, checked, onChange, last }: { label:string; des
         <p style={{ fontSize:14, color:'var(--text)' }}>{label}</p>
         {desc && <p style={{ fontSize:12, color:'var(--text-soft)', marginTop:2 }}>{desc}</p>}
       </div>
-      <label className="switch" aria-label={label}><input type="checkbox" checked={checked} onChange={onChange}/><span className="switch-track"/></label>
+      <label className="switch" aria-label={label}>
+        <input type="checkbox" checked={checked} onChange={onChange}/>
+        <span className="switch-track"/>
+      </label>
     </div>
   )
 }

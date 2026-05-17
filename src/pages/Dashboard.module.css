@@ -31,7 +31,7 @@
 .subTitle { font-size:15px; font-weight:500; color:var(--text); margin-bottom:10px; margin-top:24px; }
 
 /* Load meter */
-.meterCard { display:flex; align-items:center; gap:28px; padding:28px; border-radius:20px; border:1.5px solid; margin-bottom:28px; box-shadow: 0 4px 20px rgba(107, 155, 111, 0.08); }
+.meterCard { display:flex; align-items:center; gap:24px; padding:28px; border-radius:20px; border:1.5px solid; margin-bottom:28px; box-shadow: 0 4px 20px rgba(107, 155, 111, 0.08); min-height: 160px; }
 .meterState { font-size:20px; font-weight:500; font-family:var(--font-display); margin-bottom:4px; }
 .meterDesc { font-size:14px; color:var(--text-mid); line-height:1.5; margin-bottom:6px; }
 .meterTime { font-size:12px; color:var(--text-soft); }
