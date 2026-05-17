@@ -3,7 +3,7 @@
   "name": "Haven",
   "version": "0.3.0",
   "description": "Adaptive accessibility for neurodivergent users. Adapts any website to your cognitive needs.",
-  "permissions": ["activeTab", "storage", "scripting", "alarms", "notifications", "action"],
+  "permissions": ["activeTab", "storage", "scripting", "alarms", "notifications"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",

@@ -542,7 +542,7 @@ function timerPct(){
 }
 
 function openDash(){
-  const url='https://adaptive-op946eydb-purplepony17s-projects.vercel.app/dashboard'
+  const url='https://adaptive-f1b44uolo-purplepony17s-projects.vercel.app'
   chrome.tabs.create({url})
 }
 
@@ -551,23 +551,15 @@ async function save(){
 }
 
 function sendToPage(){
-  if(!profile.extension_enabled){
-    chrome.tabs.query({active:true,currentWindow:true},([tab])=>{
-      if(!tab?.id) return
-      // Inject content script first, then send disable message
-      chrome.scripting.executeScript({target:{tabId:tab.id},files:['content.js']})
-        .then(()=>chrome.tabs.sendMessage(tab.id,{type:'GB_DISABLE'}).catch(()=>{}))
-        .catch(()=>{})
-    })
-    return
-  }
+  function sendToPage(){
   chrome.tabs.query({active:true,currentWindow:true},([tab])=>{
     if(!tab?.id) return
-    chrome.scripting.executeScript({target:{tabId:tab.id},files:['content.js']})
-      .then(()=>chrome.scripting.insertCSS({target:{tabId:tab.id},files:['content.css']})
-        .then(()=>chrome.tabs.sendMessage(tab.id,{type:'GB_UPDATE',profile}))
-      ).catch(e=>console.log('Haven:',e))
+    const msg = profile.extension_enabled
+      ? {type:'GB_UPDATE', profile}
+      : {type:'GB_DISABLE'}
+    chrome.tabs.sendMessage(tab.id, msg).catch(()=>{})
   })
+}
 }
 
 function updateSiteHost(){
