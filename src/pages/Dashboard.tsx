@@ -129,7 +129,7 @@ export default function Dashboard() {
                    style={{borderRadius:'50%', border:'2px solid var(--border-mid)'}} />
             */}
             <div className={styles.brand}>
-              <img src="/src/assets/haven-logo.png" alt="Haven" width={38} height={38} style={{borderRadius:'50%', border:'2px solid var(--border-mid)'}} />
+              <PlantLogo size={38} />
               <div>
                 <p className={styles.brandName}>Haven</p>
                 <p className={styles.brandSub}>{profile.display_name || 'Friend'}</p>
@@ -261,7 +261,7 @@ export default function Dashboard() {
                   { key:'reduce_clutter', label:'Clear clutter',   desc:'Hides ads, sidebars, pop-ups, cookie banners and promotional content.',                      shortcut:'Alt+C', badge:'All' },
                   { key:'chunk_mode',     label:'Chunk content',   desc:'Numbers every heading so long articles feel manageable.',                                     shortcut:'Alt+K', badge:'ADHD' },
                   { key:'dyslexia_ruler', label:'Reading ruler',   desc:'A semi-transparent bar follows your mouse to help you track which line you\'re reading.',    shortcut:'Alt+R', badge:'Dyslexia' },
-                  { key:'auto_adapt',     label:'Auto-adapt',      desc:'Automatically enables modes when your cognitive load score is high.',                         shortcut:'—',     badge:'AI' },
+                  
                 ].map(m => {
                   const on = profile[m.key as keyof Profile] as boolean
                   return (
@@ -399,7 +399,7 @@ export default function Dashboard() {
             <div>
               <h2 className={styles.title}>Color themes</h2>
               <p className={styles.sub}>Each theme ensures readable contrast. High contrast is best for low vision users.</p>
-              <div className={styles.themeGrid}>
+              <div className={styles.themeGridH}>
                 {THEMES.map(t=>(
                   <button key={t.id} aria-pressed={profile.theme===t.id}
                     className={`${styles.themeCard} ${profile.theme===t.id?styles.themeCardOn:''}`}

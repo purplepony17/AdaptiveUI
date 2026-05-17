@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Gentle Browse",
-  "version": "0.2.0",
+  "name": "Haven",
+  "version": "0.3.0",
   "description": "Adaptive accessibility for neurodivergent users. Adapts any website to your cognitive needs.",
-  "permissions": ["activeTab", "storage", "scripting", "alarms", "notifications"],
+  "permissions": ["activeTab", "storage", "scripting", "alarms", "notifications", "action"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",

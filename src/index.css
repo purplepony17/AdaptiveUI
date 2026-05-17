@@ -180,3 +180,14 @@ a { color: var(--link); }
 .load-dot-pulse {
   animation: pulse 2s ease-in-out infinite;
 }
+
+/* System dark/light mode auto-detect */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #111a11; --surface: #1a2a1a; --text: #d4e8d4;
+    --text-mid: #a4c4a4; --text-soft: #6a9470;
+    --accent: #7ab87e; --accent-mid: #5a9860; --accent-pale: #1e301e;
+    --border: rgba(122,184,126,0.15); --border-mid: rgba(122,184,126,0.3);
+    --link: #90d494; --highlight: rgba(122,184,126,0.2);
+  }
+}

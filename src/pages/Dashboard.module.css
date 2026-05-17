@@ -114,3 +114,20 @@
   .main{padding:20px}
   .statsGrid{grid-template-columns:repeat(2,1fr)}
 }
+
+/* Horizontal theme grid */
+.themeGridH { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px; }
+.themeGridH .themeCard { flex:0 0 auto; width:120px; }
+
+/* Load state icons */
+.loadIcon { font-size: 40px; margin-bottom: 8px; }
+
+/* System dark mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #111a11; --surface: #1a2a1a; --text: #d4e8d4;
+    --text-mid: #a4c4a4; --text-soft: #6a9470;
+    --accent: #7ab87e; --accent-mid: #5a9860; --accent-pale: #1e301e;
+    --border: rgba(122,184,126,0.15); --border-mid: rgba(122,184,126,0.3);
+  }
+}
